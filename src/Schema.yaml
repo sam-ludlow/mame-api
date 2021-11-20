@@ -1,0 +1,120 @@
+openapi: 3.0.3
+info:
+  title: Spludlow MAME API
+  description: 'To view, paste this text to https://editor.swagger.io The Spludlow MAME API see https://mame.spludlow.co.uk'
+  termsOfService: https://www.spludlow.co.uk
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Spludlow MAME API
+  url: https://mame.spludlow.co.uk
+
+tags:
+- name: schema
+  description: API schema
+- name: mame machines
+  description: MAME Machines
+
+paths:
+  /:
+    get:
+      tags:
+        - schema
+      summary: Get schema YAML
+      operationId: Logic.Schema.GetSchemaYaml
+      security: []
+      responses:
+        200:
+          description: OpenAPI / Swagger YAML Schema
+          content:
+            text/yaml:
+              schema:
+                type: string
+  /mame/machines:
+    get:
+      tags:
+        - mame machines
+      summary: Get machines list
+      operationId: Logic.MameMachines.GetMachines
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
+        - name: sort
+          in: query
+          description: Property to order results.
+          required: false
+          schema:
+            type: string
+            enum:
+              - name
+              - year
+            default: name
+        - name: order
+          in: query
+          description: Sort order of results.
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: asc
+      responses:
+        200:
+          description: Machine list results
+          content:
+            application/json:
+              schema:
+                type: object
+  /mame/machines/{name}:
+    get:
+      tags:
+        - mame machines
+      summary: Get single machine
+      operationId: Logic.MameMachines.GetMachine
+      security: []
+      parameters:
+        - name: name
+          in: path
+          description: "The MAME Machine name"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Machine results
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  parameters:
+    offset:
+      description: Row offset.
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    limit:
+      description: Row count limit.
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 100
+
+  securitySchemes:
+    api_key_auth:
+      type: apiKey
+      name: x-api-key
+      in: header
+    cookie_auth:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID

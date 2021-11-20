@@ -1,0 +1,127 @@
+<html>
+<head>
+
+	<script type="text/javascript">
+
+		let _WebSocket;
+
+		const htmlEncode = (text) => {
+			return new Option(text).innerHTML;
+		}
+
+		const sleep = (ms = 1000) => {
+			return new Promise(resolve => setTimeout(resolve, ms))
+		}
+
+		const setup = async () => {
+			const response = await fetch('/users/login', {
+				method: 'GET',
+			});
+			const result = await response.json();
+
+			_info_div.innerHTML = `<p>${JSON.stringify(result)}</p>`;
+
+			if (result.session) {
+				
+				await sleep();
+
+				_WebSocket = new WebSocket(result.session.socketAddress);
+
+				_WebSocket.onopen = () => {
+				};
+
+				_WebSocket.onmessage = (msg) => {
+
+					const tableRow = document.createElement('tr');
+					const cell = document.createElement('td');
+					cell.innerHTML = htmlEncode(msg.data);
+					tableRow.appendChild(cell);
+
+					if (_socket_table.childNodes.length > 0)
+						_socket_table.insertBefore(tableRow, _socket_table.childNodes[0]);
+					else
+						_socket_table.appendChild(tableRow);
+
+					while (_socket_table.childNodes.length > 10) {
+						_socket_table.childNodes[_socket_table.childNodes.length - 1].remove();
+					}
+				};
+			}
+		}
+
+		const Login = async () => {
+
+			const response = await fetch('/users/login', {
+				method: 'POST',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					username: _username_input.value,
+					password: _password_input.value,
+				}),
+			});
+
+			const result = await response.json();
+			_info_div.innerHTML = `<p>${JSON.stringify(result)}</p>`;
+
+			await setup();
+
+		}
+
+		const Logout = async () => {
+			const response = await fetch('/Login', {
+				method: 'DELETE',
+			});
+
+			const result = await response.json();
+
+			_info_div.innerHTML = `<p>${JSON.stringify(result)}</p>`;
+		}
+
+		const Send = async () => {
+
+			_WebSocket.send(_socket_input.value);
+		}
+
+		setup();
+
+	</script>
+
+</head>
+<body>
+
+	<hr />
+
+	<input type="text" id="username_input" />
+	<input type="password" id="password_input" />
+
+	<input type="submit" id="login_button" onclick="Login();return false;" value="Login" />
+	<div id="info_div"></div>
+
+	<hr />
+
+	<input type="submit" id="login_button" onclick="Logout();return false;" value="Logout" />
+
+	<div id="messages"></div>
+
+	<input type="text" id="socket_input" />
+
+	<input type="submit" id="socket_button" onclick="Send();return false;" value="Send" />
+
+	<table id="socket_table"></table>
+
+	<script type="text/javascript">
+
+		const _info_div = document.getElementById('info_div');
+		const _username_input = document.getElementById('username_input');
+		const _password_input = document.getElementById('password_input');
+		const _socket_table = document.getElementById('socket_table');
+
+		const _socket_input = document.getElementById('socket_input');
+	</script>
+
+
+</body>
+</html >
