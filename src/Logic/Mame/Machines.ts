@@ -29,7 +29,10 @@ export const GetMachines = async (context: Tools.Context): Promise<any> => {
         context.server.cache[sortCacheKey] = machines;
     }
 
-    return machines.slice(offset, offset + limit);
+    return {
+        count: machines.length,
+        results: machines.slice(offset, offset + limit),
+    };
 }
 
 const machineTableNames: string[] = [
