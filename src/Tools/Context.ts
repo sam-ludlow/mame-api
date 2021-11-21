@@ -271,7 +271,9 @@ export class Context {
 
 	public ValidateRequest = async () => {
 
-		let schemaPathMethod: any = this.server.schema.paths[this.request.path];
+		const routePath = this.route?.path;
+
+		let schemaPathMethod: any = routePath ? this.server.schema.paths[routePath] : undefined;
 
 		if (schemaPathMethod) schemaPathMethod = schemaPathMethod[this.request.method];
 
@@ -316,6 +318,16 @@ export class Context {
 									if (part > parameter.schema.maximum)
 										throw new Tools.ApiError({
 											message: `maximum query paramter ${parameter.name}`,
+											status: 400,
+											error: undefined,
+										});
+								}
+
+								// Enum
+								if (parameter.schema.enum) {
+									if (parameter.schema.enum.filter((enumItem: any) => enumItem === part).length === 0)
+										throw new Tools.ApiError({
+											message: `not in enum query paramter ${parameter.name}`,
 											status: 400,
 											error: undefined,
 										});
