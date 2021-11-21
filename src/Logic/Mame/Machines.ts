@@ -8,21 +8,28 @@ export const GetMachines = async (context: Tools.Context): Promise<any> => {
     const sort: string = context.request.queryParameters['sort'].slice(-1)[0];
     const order: string = context.request.queryParameters['order'].slice(-1)[0];
 
-    let machines: any[] = context.server.cache.Tables['machine'];
-    machines = [...machines];
+    const sortCacheKey = `machines-${sort}-${order}`;
 
-    machines.sort((a: any, b: any) => {
-        const direction: number = order === 'asc' ? -1 : 1;
-        if (a[sort] < b[sort])
-            return direction;
-        if (a[sort] > b[sort])
-            return -direction;
-        return 0;
-    });
+    let machines: any[] = context.server.cache[sortCacheKey];
 
-    machines = machines.slice(offset, offset + limit);
+    if (!machines) {
 
-    return machines;
+        machines = context.server.cache.Tables['machine'];
+        machines = [...machines];
+    
+        machines.sort((a: any, b: any) => {
+            const direction: number = order === 'asc' ? -1 : 1;
+            if (a[sort] < b[sort])
+                return direction;
+            if (a[sort] > b[sort])
+                return -direction;
+            return 0;
+        });
+
+        context.server.cache[sortCacheKey] = machines;
+    }
+
+    return machines.slice(offset, offset + limit);
 }
 
 const machineTableNames: string[] = [

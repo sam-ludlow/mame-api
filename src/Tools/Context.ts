@@ -160,11 +160,11 @@ export class Context {
 		});
 
 		if (!this.route) {
-			await this.HandleError(new Tools.ApiError({
+			throw new Tools.ApiError({
 				status: 404,
-				message: this.req.url!,
+				message: 'Route not found.',
 				error: undefined,
-			}), 'Miss Route');
+			});
 		}
 
 	}
