@@ -5,6 +5,12 @@ const spludlowPublicServerConfig: Model.ServerConfig = {
 	name: 'Spludlow MAME API - Public Server',
 	schemaFilename: './src/Schema.yaml',
 	routes: [
+		{
+			path: '/schema',
+			method: 'get',
+			anonymous: true,
+			logic: 'Logic.Schema.GetSchema',
+		}
 	],
 };
 

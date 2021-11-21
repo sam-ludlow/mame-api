@@ -271,16 +271,67 @@ export class Context {
 
 	public ValidateRequest = async () => {
 
-		console.log('Validate Request: ' + JSON.stringify(this.request));
+		let schemaPathMethod: any = this.server.schema.paths[this.request.path];
 
-/*		switch (pathParameter.length) {
-			case 40:
-				if (matchSHA1.test(pathParameter)) {
-					foundId = true;
+		if (schemaPathMethod) schemaPathMethod = schemaPathMethod[this.request.method];
+
+		if (schemaPathMethod) {
+			schemaPathMethod.parameters.forEach((parameter: any) => {
+
+				if (parameter.in === 'query') {
+					// Required
+					if (parameter.required === true && this.request.queryParameters[parameter.name] === undefined)
+						throw new Tools.ApiError({
+							message: `Required query paramter missing ${parameter.name}`,
+							status: 400,
+							error: undefined,
+						});
+
+					// Default
+					if (this.request.queryParameters[parameter.name] === undefined && parameter.schema.default !== undefined) {
+						this.request.queryParameters[parameter.name] = [parameter.schema.default];
+					}
+
+					// If using
+					if (this.request.queryParameters[parameter.name] !== undefined) {
+
+						this.request.queryParameters[parameter.name].forEach((part: any, index: number) => {
+							// Fix types
+							if (parameter.schema.type === 'integer' && typeof part !== 'number')
+								part = parseInt(part, 10);
+
+							// Min
+							if (parameter.schema.type === 'integer' && parameter.schema.minimum !== undefined) {
+								if (part < parameter.schema.minimum)
+									throw new Tools.ApiError({
+										message: `minimum query paramter ${parameter.name}`,
+										status: 400,
+										error: undefined,
+									});
+							}
+
+							// Max
+							if (parameter.schema.type === 'integer' && parameter.schema.maximum !== undefined) {
+								if (part > parameter.schema.maximum)
+									throw new Tools.ApiError({
+										message: `maximum query paramter ${parameter.name}`,
+										status: 400,
+										error: undefined,
+									});
+							}
+
+							this.request.queryParameters[parameter.name][index] = part;
+							
+						});
+
+					}
+
 				}
-				break;
-		}*/
+			});
 
+		} else {
+			console.log(`WARNING: Path without schema: ${this.request.method} ${this.request.path}.`);
+		}
 	}
 
 	public Execute = async () => {
@@ -299,6 +350,8 @@ export class Context {
 	}
 
 	public WriteResponse = async () => {
+
+		this.res.setHeader('Access-Control-Allow-Origin', '*');
 
 		await Tools.Response.Write(this);
 

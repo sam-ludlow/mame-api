@@ -2,11 +2,27 @@ import * as Tools from '../../Tools';
 
 export const GetMachines = async (context: Tools.Context): Promise<any> => {
 
-    const tables = context.server.cache.Tables;
+    const offset: number = context.request.queryParameters['offset'].slice(-1)[0];
+    const limit: number = context.request.queryParameters['limit'].slice(-1)[0];
 
+    const sort: string = context.request.queryParameters['sort'].slice(-1)[0];
+    const order: string = context.request.queryParameters['order'].slice(-1)[0];
 
-    return tables['machine'].slice(0, 100);
+    let machines: any[] = context.server.cache.Tables['machine'];
+    machines = [...machines];
 
+    machines.sort((a: any, b: any) => {
+        const direction: number = order === 'asc' ? -1 : 1;
+        if (a[sort] < b[sort])
+            return direction;
+        if (a[sort] > b[sort])
+            return -direction;
+        return 0;
+    });
+
+    machines = machines.slice(offset, offset + limit);
+
+    return machines;
 }
 
 const machineTableNames: string[] = [
