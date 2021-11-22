@@ -353,10 +353,6 @@ export class Context {
 	}
 
 	public WriteResponse = async () => {
-
-		this.res.setHeader('Access-Control-Allow-Origin', '*');
-		this.res.setHeader('Server', 'Spludlow MAME API/0.0');
-
 		await Tools.Response.Write(this);
 	}
 

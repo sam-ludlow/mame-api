@@ -145,6 +145,9 @@ export class Server {
 
 		const context: Tools.Context = new Tools.Context(this, req, res);
 
+		context.res.setHeader('Access-Control-Allow-Origin', '*');
+		context.res.setHeader('Server', 'Spludlow MAME API/0.0');
+
 		let ignore = false;
 
 		try {
