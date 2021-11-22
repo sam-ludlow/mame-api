@@ -181,7 +181,7 @@ export class Server {
 				const endTime: Date = new Date();
 				const ms: number = endTime.getTime() - startTime.getTime();
 	
-				console.log(`${context.server.name}	${context.requestTime.toISOString()}	${context.serialNumber}	${context.request.method}	${context.request.path}	${context.response.statusCode}	${ms}`);
+				console.log(`${context.server.name}	${context.requestTime.toISOString()}	${context.req.socket.remoteAddress}	${context.serialNumber}	${context.response.statusCode}	${ms}	${context.request.method}	${context.request.path}`);
 			}
 		}
 	}

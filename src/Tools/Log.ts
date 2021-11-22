@@ -26,7 +26,7 @@ export const LogData = (context: Tools.Context, title: string, data: any) => {
 
 const logHeader = (context: Tools.Context, title: string): string => {
 
-	return `${context.server.name}	${context.requestTime.toISOString()}	${context.serialNumber}	${title}	${context.request.method}	 ${context.request.contentType}	${context.request.path}	${context.req.url}`;
+	return `${context.server.name}	${context.requestTime.toISOString()}	${context.req.socket.remoteAddress}	${context.serialNumber}	${context.response.statusCode}	${title}`;
 }
 
 
