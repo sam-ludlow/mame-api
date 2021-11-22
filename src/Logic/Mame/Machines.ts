@@ -1,5 +1,31 @@
 import * as Tools from '../../Tools';
 
+export const ServerStartup = async (server: Tools.Server) => {
+
+    server.cache['Tables'] = await BuildCache();
+    server.cache['Machines'] = {};
+
+    const mameRows: any[] = server.cache['Tables']['mame'];
+
+    server.cache['MameRelease'] = mameRows[0].build;
+
+    console.log(`MameRelease: ${server.cache.MameRelease}`);
+}
+
+export const GetAbout = async (context: Tools.Context): Promise<any> => {
+
+    const table_row_counts: any = {};
+
+    Object.keys(context.server.cache['Tables']).forEach((tableName) => {
+        table_row_counts[tableName] = context.server.cache['Tables'][tableName].length;
+    });
+
+    return {
+        release: context.server.cache.MameRelease,
+        table_row_counts,
+    };
+}
+
 export const GetMachines = async (context: Tools.Context): Promise<any> => {
 
     const offset: number = context.request.queryParameters['offset'].slice(-1)[0];
@@ -36,6 +62,7 @@ export const GetMachines = async (context: Tools.Context): Promise<any> => {
 }
 
 const machineTableNames: string[] = [
+    'mame',
     'machine',
     'rom',
     'adjuster',

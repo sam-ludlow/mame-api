@@ -104,14 +104,13 @@ export class Server {
 		});
 
 		/**
-		 * Load Application Caches
+		 * Application Startup
 		 */
+		console.log('Server Startup...');
 
-		console.log('Starting MAME Cache load...');
-		this.cache['Tables'] = await Logic.MameMachines.BuildCache();
-		console.log('... finished MAME Cache load.');
+		await Logic.MameMachines.ServerStartup(this);
 
-		this.cache['Machines'] = {}; 
+		console.log('... finished Server Startup.');
 
 		/**
 		 * Listen
@@ -135,6 +134,8 @@ export class Server {
 	}
 
 	private RequestListener: http.RequestListener = async (req: http.IncomingMessage, res: http.ServerResponse) => {
+
+		const startTime: Date = new Date();
 
 		const context: Tools.Context = new Tools.Context(this, req, res);
 
@@ -165,6 +166,11 @@ export class Server {
 
 		} catch (e) {
 			context.HandleError(e as Error, 'Request Error');
+		} finally {
+			const endTime: Date = new Date();
+			const ms: number = endTime.getTime() - startTime.getTime();
+
+			console.log(`${context.server.name}	${context.requestTime.toISOString()}	${context.serialNumber}	${context.request.method}	${context.request.path}	${context.response.statusCode}	${ms}`);
 		}
 
 	}

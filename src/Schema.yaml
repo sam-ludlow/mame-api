@@ -11,6 +11,8 @@ externalDocs:
 tags:
 - name: schema
   description: API schema
+- name: mame
+  description: MAME
 - name: mame machines
   description: MAME Machines
 
@@ -29,6 +31,36 @@ paths:
             text/yaml:
               schema:
                 type: string
+  /schema:
+    get:
+      tags:
+        - schema
+      summary: Get schema JSON
+      operationId: Logic.Schema.GetSchema
+      security: []
+      responses:
+        200:
+          description: JSON Schema
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /mame/about:
+    get:
+      tags:
+        - mame
+      summary: Get information about MAME (release version)
+      operationId: Logic.MameMachines.GetAbout
+      security: []
+      responses:
+        200:
+          description: Information about MAME
+          content:
+            application/json:
+              schema:
+                type: object
+
   /mame/machines:
     get:
       tags:
