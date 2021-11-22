@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: Spludlow MAME API
-  description: 'To view, paste this text to https://editor.swagger.io The Spludlow MAME API see https://mame.spludlow.co.uk'
-  termsOfService: https://www.spludlow.co.uk
+  description: https://mame.spludlow.co.uk/swagger-ui
+  termsOfService: https://mame.spludlow.co.uk
   version: 1.0.0
 externalDocs:
   description: Find out more about Spludlow MAME API
