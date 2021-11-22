@@ -119,6 +119,9 @@ paths:
             application/json:
               schema:
                 type: object
+        404:
+          description: Machine name not found.
+
 components:
   parameters:
     offset:
