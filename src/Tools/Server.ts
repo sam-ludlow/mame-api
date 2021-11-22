@@ -133,17 +133,27 @@ export class Server {
 		});
 	}
 
+	private ignorePaths: string[] = [
+		'/favicon.ico',
+		'/robots.txt',
+		'/sitemap.xml',
+	];
+
 	private RequestListener: http.RequestListener = async (req: http.IncomingMessage, res: http.ServerResponse) => {
 
 		const startTime: Date = new Date();
 
 		const context: Tools.Context = new Tools.Context(this, req, res);
 
+		let ignore = false;
+
 		try {
 
 			await context.ReadRequestPath();
 	
-			if (context.request.path === '/favicon.ico') {
+			if (this.ignorePaths.includes(context.request.path)) {
+				ignore = true;
+				context.res.writeHead(404);
 				context.res.end();
 				return;
 			}
@@ -167,12 +177,12 @@ export class Server {
 		} catch (e) {
 			context.HandleError(e as Error, 'Request Error');
 		} finally {
-			const endTime: Date = new Date();
-			const ms: number = endTime.getTime() - startTime.getTime();
-
-			console.log(`${context.server.name}	${context.requestTime.toISOString()}	${context.serialNumber}	${context.request.method}	${context.request.path}	${context.response.statusCode}	${ms}`);
+			if (!ignore) {
+				const endTime: Date = new Date();
+				const ms: number = endTime.getTime() - startTime.getTime();
+	
+				console.log(`${context.server.name}	${context.requestTime.toISOString()}	${context.serialNumber}	${context.request.method}	${context.request.path}	${context.response.statusCode}	${ms}`);
+			}
 		}
-
 	}
-
 }

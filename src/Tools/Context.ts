@@ -70,7 +70,6 @@ export class Context {
 			queryParameters: '',
 
 			body: {},
-
 		};
 
 		this.response = {
@@ -81,7 +80,6 @@ export class Context {
 			},
 		};
 	}
-
 	
 	/**
 	 * clean path - to lowwer, trailing / off, ? moved for later
@@ -110,8 +108,6 @@ export class Context {
 		this.request.method = this.req.method!.toLowerCase();
 
 	}
-
-
 
 	/**
 	 * Throw 404 if route not found
@@ -208,7 +204,6 @@ export class Context {
 		 }
 
 	}
-
 
 	public AuthenticateSession = async () => {
 
@@ -350,31 +345,21 @@ export class Context {
 			throw new Error('No route to Execute');
 	
 		this.response.body = await this.route.logic(this);
-
-
 	}
 
 	public ValidateResponse = async () => {
 
-		console.log('Validate Response: ' + JSON.stringify(this.response.body).length);
-
+		//this.response.body;
 	}
 
 	public WriteResponse = async () => {
 
 		this.res.setHeader('Access-Control-Allow-Origin', '*');
+		this.res.setHeader('Server', 'Spludlow MAME API/0.0');
 
 		await Tools.Response.Write(this);
-
 	}
 
-
-
-
-
-
-
-	/////
 
 	public HandleError = async (e: Error, title: string) => {
 
@@ -405,7 +390,4 @@ export class Context {
 		
 		await Tools.Response.Write(this);
 	}
-
-
-
 }
