@@ -227,8 +227,8 @@ export class Context {
 				const pair: string[] = part.split('=');
 				if (pair.length < 1 || pair.length > 2)
 					throw new Error(`Bad pair ${part}`);
-				const key = pair[0];
-				const value = pair[1];
+				const key = decodeURIComponent(pair[0]);
+				const value = decodeURIComponent(pair[1]);
 
 				if (!this.request.queryParameters[key]) this.request.queryParameters[key] = [];
 				if (value !== undefined) this.request.queryParameters[key].push(value);

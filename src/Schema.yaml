@@ -81,16 +81,19 @@ paths:
               - name
               - year
             default: name
-        - name: order
+        - $ref: '#/components/parameters/order'
+        - name: filter_manufacturer
           in: query
-          description: Sort order of results.
+          description: Filter results on manufacturer.
           required: false
           schema:
             type: string
-            enum:
-              - asc
-              - desc
-            default: asc
+        - name: filter_year
+          in: query
+          description: Filter results on year.
+          required: false
+          schema:
+            type: string
       responses:
         200:
           description: Machine list results
@@ -143,6 +146,17 @@ components:
         minimum: 1
         maximum: 1000
         default: 100
+    order:
+      description: Sort order of results.
+      in: query
+      name: order
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+        default: asc
 
   securitySchemes:
     api_key_auth:

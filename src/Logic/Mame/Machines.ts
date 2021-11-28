@@ -26,6 +26,8 @@ export const GetAbout = async (context: Tools.Context): Promise<any> => {
     };
 }
 
+const facetPropertyNames = ['manufacturer', 'year']; 
+
 export const GetMachines = async (context: Tools.Context): Promise<any> => {
 
     const offset: number = context.request.queryParameters['offset'].slice(-1)[0];
@@ -34,10 +36,9 @@ export const GetMachines = async (context: Tools.Context): Promise<any> => {
     const sort: string = context.request.queryParameters['sort'].slice(-1)[0];
     const order: string = context.request.queryParameters['order'].slice(-1)[0];
 
+    // Sort ALL machines (cached)
     const sortCacheKey = `machines-${sort}-${order}`;
-
     let machines: any[] = context.server.cache[sortCacheKey];
-
     if (!machines) {
 
         machines = context.server.cache.Tables['machine'];
@@ -55,8 +56,64 @@ export const GetMachines = async (context: Tools.Context): Promise<any> => {
         context.server.cache[sortCacheKey] = machines;
     }
 
+    // Filter
+    const filter: any = {};
+    facetPropertyNames.forEach((properptyName) => {
+        const filterValues: string[] = context.request.queryParameters[`filter_${properptyName}`];
+        if (filterValues !== undefined) {
+            filter[properptyName] = filterValues;
+
+            machines = machines.filter((machine: any) => filterValues.includes(machine[properptyName]));
+        }
+    });
+
+
+    // Facet value counts
+    const facets: any = {};
+    facetPropertyNames.forEach((facetPropertyName) => {
+        facets[facetPropertyName] = {};
+    });
+    machines.forEach((machine) => {
+        facetPropertyNames.forEach((facetPropertyName) => {
+            if (machine[facetPropertyName] !== undefined) {
+                const value: any = machine[facetPropertyName];
+
+                const facet = facets[facetPropertyName];
+
+                if (facet[value] === undefined)
+                    facet[value] = 0;
+
+                ++facet[value];
+            }
+        });
+    });
+
+    //  Facet sort on value names
+    facetPropertyNames.forEach((facetPropertyName) => {
+        const facet = facets[facetPropertyName];
+
+        const sortedFacet: any = {
+            '__OTHER': 0,
+        };
+
+        const sortedValues = Object.keys(facet).sort();
+
+        sortedValues.forEach((value) => {
+            const count: number = facet[value];
+
+            if (count >= 10)
+                sortedFacet[value] = facet[value];
+            else
+                ++sortedFacet['__OTHER'];
+
+        });
+        facets[facetPropertyName] = sortedFacet;
+    });
+
     return {
         count: machines.length,
+        filter,
+        facets,
         results: machines.slice(offset, offset + limit),
     };
 }
