@@ -22,11 +22,15 @@ export class Server {
 	public secure: boolean;
 	public server: http.Server | https.Server;
 
+	private applicationStartFunctions: Model.ApplicationStartFunctionType[];
+
 	constructor(config: Tools.Config, serverConfig: Model.ServerConfig) {
 
+		//	Just pass the object with these !!!
 		this.name = serverConfig.name;
 		this.routes = serverConfig.routes;
 		this.schemaFilename = serverConfig.schemaFilename;
+		this.applicationStartFunctions = serverConfig.applicationStartFunctions;
 
 		this.cache = {};
 
@@ -104,11 +108,27 @@ export class Server {
 		});
 
 		/**
-		 * Application Startup
+		 * Application Startup (load caches) !!! wont run if file
 		 */
 		console.log('Server Startup...');
 
-		await Logic.MameMachines.ServerStartup(this);
+		const cacheFilename = './cache.json';
+		if (Tools.IO.FileExists(cacheFilename)) {
+
+			console.log(`Reading server data cache from file (NOT RUNNING application Start Functions): ${cacheFilename}`);
+			this.cache = JSON.parse(await Tools.IO.FileRead(cacheFilename));
+		} else {
+	
+			console.log(`Running application Start Functions`);
+			if (this.applicationStartFunctions) {
+				for await (const applicationStartFunction of this.applicationStartFunctions) {
+					await applicationStartFunction(this);
+				}
+			}
+
+			console.log(`Writing server data cache to file: ${cacheFilename}`);
+			await Tools.IO.FileWrite(cacheFilename, JSON.stringify(this.cache));
+		}
 
 		console.log('... finished Server Startup.');
 

@@ -1,9 +1,13 @@
 import * as Model from './Model';
 import * as Tools from './Tools';
+import * as Logic from './Logic';
 
 const spludlowPublicServerConfig: Model.ServerConfig = {
 	name: 'Spludlow MAME API - Public Server',
 	schemaFilename: './src/Schema.yaml',
+	applicationStartFunctions: [
+		Logic.MameMachines.ServerStartup
+	],
 	routes: [
 /*		{
 			path: '/schema',

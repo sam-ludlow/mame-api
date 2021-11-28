@@ -6,9 +6,7 @@ export const ServerStartup = async (server: Tools.Server) => {
     server.cache['Machines'] = {};
 
     const mameRows: any[] = server.cache['Tables']['mame'];
-
     server.cache['MameRelease'] = mameRows[0].build;
-
     console.log(`MameRelease: ${server.cache.MameRelease}`);
 }
 

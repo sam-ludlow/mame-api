@@ -28,10 +28,13 @@ export interface Route {
 	logic: any;
 }
 
+export type ApplicationStartFunctionType = (server: Tools.Server) => Promise<void>;
+
 export interface ServerConfig {
 	name: string;
 	routes: Route[];
 	schemaFilename: string;
+	applicationStartFunctions: ApplicationStartFunctionType[],
 }
 
 export interface ApiErrorConfig {

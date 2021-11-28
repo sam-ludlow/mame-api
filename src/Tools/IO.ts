@@ -38,6 +38,10 @@ export const FileCopy = async (sourceFilename: string, targetFilename: string) =
 	}
 };
 
+export const FileExists = (filename: string): boolean => {
+	return fs.existsSync(filename);
+}
+
 export const FileDelete = async (filename: string) => {
 	if (fs.existsSync(filename))
 		fs.unlinkSync(filename);

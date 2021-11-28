@@ -1,5 +1,6 @@
 package-lock.json
 certs/
+cache.json
 
 # Logs
 logs
