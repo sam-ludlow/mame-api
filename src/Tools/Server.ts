@@ -15,6 +15,7 @@ export class Server {
 	public schema: any;
 	
 	public cache: any;
+	public applicationServers: any = {};
 
 	public sessions: any = {};
 

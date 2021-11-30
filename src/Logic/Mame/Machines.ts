@@ -1,25 +1,57 @@
 import * as Tools from '../../Tools';
 
+export class MameApplicationServer {
+    
+    public cache: any = {};
+    public mameRelease: string = '';
+
+    constructor(server: Tools.Server) {
+
+        if (server.cache['MAME'] === undefined)
+            server.cache['MAME'] = this.cache;
+        else
+            this.cache = server.cache['MAME'];
+    }
+}
+
+export const GetMameApplicationServer = (server: Tools.Server) => {
+
+    let appServer: MameApplicationServer = server.applicationServers['MAME'];
+    if (appServer === undefined)
+        appServer = new MameApplicationServer(server);
+    server.applicationServers['MAME'] = appServer;
+
+    // !!! Not best place (init app server when cache loaded)
+    if (appServer.mameRelease === '' && appServer.cache['Tables'] !== undefined) {
+        const mameRows: any[] = appServer.cache['Tables']['mame'];
+        appServer.mameRelease = mameRows[0].build;
+    
+        console.log(`MameRelease: ${appServer.mameRelease}`);
+    }
+
+    return server.applicationServers['MAME'];
+}
+
 export const ServerStartup = async (server: Tools.Server) => {
+    
+    const appServer: MameApplicationServer = GetMameApplicationServer(server);
 
-    server.cache['Tables'] = await BuildCache();
-    server.cache['Machines'] = {};
-
-    const mameRows: any[] = server.cache['Tables']['mame'];
-    server.cache['MameRelease'] = mameRows[0].build;
-    console.log(`MameRelease: ${server.cache.MameRelease}`);
+    appServer.cache['Tables'] = await BuildCache();
+    appServer.cache['Machines'] = {};
 }
 
 export const GetAbout = async (context: Tools.Context): Promise<any> => {
 
+    const appServer: MameApplicationServer = GetMameApplicationServer(context.server);
+
     const table_row_counts: any = {};
 
-    Object.keys(context.server.cache['Tables']).forEach((tableName) => {
-        table_row_counts[tableName] = context.server.cache['Tables'][tableName].length;
+    Object.keys(appServer.cache['Tables']).forEach((tableName) => {
+        table_row_counts[tableName] = appServer.cache['Tables'][tableName].length;
     });
 
     return {
-        release: context.server.cache.MameRelease,
+        release: appServer.mameRelease,
         table_row_counts,
     };
 }
@@ -27,6 +59,8 @@ export const GetAbout = async (context: Tools.Context): Promise<any> => {
 const facetPropertyNames = ['manufacturer', 'year']; 
 
 export const GetMachines = async (context: Tools.Context): Promise<any> => {
+
+    const appServer: MameApplicationServer = GetMameApplicationServer(context.server);
 
     const offset: number = context.request.queryParameters['offset'].slice(-1)[0];
     const limit: number = context.request.queryParameters['limit'].slice(-1)[0];
@@ -36,10 +70,10 @@ export const GetMachines = async (context: Tools.Context): Promise<any> => {
 
     // Sort ALL machines (cached)
     const sortCacheKey = `machines-${sort}-${order}`;
-    let machines: any[] = context.server.cache[sortCacheKey];
+    let machines: any[] = appServer.cache[sortCacheKey];
     if (!machines) {
 
-        machines = context.server.cache.Tables['machine'];
+        machines = appServer.cache.Tables['machine'];
         machines = [...machines];
     
         machines.sort((a: any, b: any) => {
@@ -51,7 +85,7 @@ export const GetMachines = async (context: Tools.Context): Promise<any> => {
             return 0;
         });
 
-        context.server.cache[sortCacheKey] = machines;
+        appServer.cache[sortCacheKey] = machines;
     }
 
     // Filter
@@ -170,14 +204,16 @@ export const BuildCache = async (): Promise<any> => {
 
 export const GetMachine = async (context: Tools.Context): Promise<any> => {
 
+    const appServer: MameApplicationServer = GetMameApplicationServer(context.server);
+
     const machineName: string = context.request.pathParameters['name'];
 
-    let dataSet: any = context.server.cache.Machines[machineName];
+    let dataSet: any = appServer.cache.Machines[machineName];
 
     if (!dataSet) {
         dataSet = {};
 
-        const tables = context.server.cache.Tables;
+        const tables = appServer.cache.Tables;
 
         const machineRows = tables['machine'].filter((item: any) => item.name === machineName);
 
@@ -197,7 +233,7 @@ export const GetMachine = async (context: Tools.Context): Promise<any> => {
                 dataSet[tableName] = rows;
         }
 
-        context.server.cache.Machines[machineName] = dataSet;
+        appServer.cache.Machines[machineName] = dataSet;
     }
 
     return dataSet;
