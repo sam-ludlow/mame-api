@@ -5,8 +5,12 @@ import * as Logic from './Logic';
 const spludlowPublicServerConfig: Model.ServerConfig = {
 	name: 'Spludlow MAME API - Public Server',
 	schemaFilename: './src/Schema.yaml',
-	applicationStartFunctions: [
-		Logic.MameMachines.ServerStartup
+	applicationServers: [
+		{
+			key: 'MAME',
+			cacheBuilder: Logic.MameMachines.BuildCache,
+			classDefinition: Logic.MameMachines.MameApplicationServer,
+		},
 	],
 	routes: [
 /*		{

@@ -23,7 +23,7 @@ export class Server {
 	public secure: boolean;
 	public server: http.Server | https.Server;
 
-	private applicationStartFunctions: Model.ApplicationStartFunctionType[];
+	private applicationServerConfigs: Model.ApplicationServerConfig[];
 
 	constructor(config: Tools.Config, serverConfig: Model.ServerConfig) {
 
@@ -31,7 +31,7 @@ export class Server {
 		this.name = serverConfig.name;
 		this.routes = serverConfig.routes;
 		this.schemaFilename = serverConfig.schemaFilename;
-		this.applicationStartFunctions = serverConfig.applicationStartFunctions;
+		this.applicationServerConfigs = serverConfig.applicationServers;
 
 		this.cache = {};
 
@@ -109,27 +109,42 @@ export class Server {
 		});
 
 		/**
-		 * Application Startup (load caches) !!! wont run if file
+		 * Application Startup
 		 */
 		console.log('Server Startup...');
 
+
+		// Load or create cache data
 		const cacheFilename = './cache.json';
 		if (Tools.IO.FileExists(cacheFilename)) {
 
 			console.log(`Reading server data cache from file (NOT RUNNING application Start Functions): ${cacheFilename}`);
 			this.cache = JSON.parse(await Tools.IO.FileRead(cacheFilename));
-		} else {
-	
-			console.log(`Running application Start Functions`);
-			if (this.applicationStartFunctions) {
-				for await (const applicationStartFunction of this.applicationStartFunctions) {
-					await applicationStartFunction(this);
-				}
-			}
 
+		} else {
+
+			for await (const config of this.applicationServerConfigs) {
+
+				console.log(`application server initializing Cache: ${config.key}`);
+
+				this.cache[config.key] = await config.cacheBuilder();
+
+				console.log(`application server initialized Cache: ${config.key}`);
+			}
+	
 			console.log(`Writing server data cache to file: ${cacheFilename}`);
 			await Tools.IO.FileWrite(cacheFilename, JSON.stringify(this.cache));
 		}
+
+
+		// Make Application servers
+		this.applicationServerConfigs.forEach((config) => {
+
+			this.applicationServers[config.key] =
+				new config.classDefinition(config.key, this.cache[config.key]);
+
+			console.log(`application server created: ${config.key}`);
+		});
 
 		console.log('... finished Server Startup.');
 

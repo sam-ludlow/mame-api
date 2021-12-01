@@ -1,57 +1,93 @@
 import * as Tools from '../../Tools';
+import * as Model from '../../Model';
 
-export class MameApplicationServer {
+const machineTableNames: string[] = [
+    'mame',
+    'machine',
+    'rom',
+    'adjuster',
+    'biosset',
+    'chip',
+    'configuration',
+    'control',
+    'device',
+    'device_ref',
+    'dipswitch',
+    'disk',
+    'display',
+    'driver',
+    'feature',
+    'input',
+    'port',
+    'ramoption',
+    'sample',
+    'slot',
+    'softwarelist',
+    'sound',
+];
+
+export const BuildCache = async (): Promise<any> => {
+
+    const cache: any = {};
+
+    const sqlClient = new Tools.Data.SqlClient('SPLCAL-MAIN', 'MameMachines');
+    await sqlClient.Open();
+    try {
+
+        for await (const tableName of machineTableNames) {
+   
+            let commandText: string = `SELECT * FROM ${tableName}`;
+
+            if (tableName === 'control')
+                commandText = `SELECT input.machine_Id, control.* FROM [input] INNER JOIN control ON input.input_Id = control.input_Id`;
+
+            cache[tableName] = await sqlClient.Request(commandText);
+        }
+
+    } finally {
+        await sqlClient.Close();
+    }
+
+    return {
+        Tables: cache,
+    };
+}
+
+export class MameApplicationServer implements Model.ApplicationServer {
     
-    public cache: any = {};
-    public mameRelease: string = '';
+    public Cache: any;
+    public Key: string;
 
-    constructor(server: Tools.Server) {
+    public MameRelease: string = '';
 
-        if (server.cache['MAME'] === undefined)
-            server.cache['MAME'] = this.cache;
-        else
-            this.cache = server.cache['MAME'];
+    constructor(key: string, cache: any) {
+        this.Key = key;
+        this.Cache = cache;
+
+        //  Non-persistant caches (maybe one day)
+        this.Cache['Machines'] = {};
+        this.Cache['MachineSortLists'] = {};
+
+        const mameRows: any[] = this.Cache['Tables']['mame'];
+        this.MameRelease = mameRows[0].build;
     }
 }
 
-export const GetMameApplicationServer = (server: Tools.Server) => {
+export const GetMameApplicationServer = (server: Tools.Server): MameApplicationServer => server.applicationServers['MAME'];
 
-    let appServer: MameApplicationServer = server.applicationServers['MAME'];
-    if (appServer === undefined)
-        appServer = new MameApplicationServer(server);
-    server.applicationServers['MAME'] = appServer;
-
-    // !!! Not best place (init app server when cache loaded)
-    if (appServer.mameRelease === '' && appServer.cache['Tables'] !== undefined) {
-        const mameRows: any[] = appServer.cache['Tables']['mame'];
-        appServer.mameRelease = mameRows[0].build;
-    
-        console.log(`MameRelease: ${appServer.mameRelease}`);
-    }
-
-    return server.applicationServers['MAME'];
-}
-
-export const ServerStartup = async (server: Tools.Server) => {
-    
-    const appServer: MameApplicationServer = GetMameApplicationServer(server);
-
-    appServer.cache['Tables'] = await BuildCache();
-    appServer.cache['Machines'] = {};
-}
 
 export const GetAbout = async (context: Tools.Context): Promise<any> => {
 
-    const appServer: MameApplicationServer = GetMameApplicationServer(context.server);
+    const appServer = GetMameApplicationServer(context.server);
 
     const table_row_counts: any = {};
 
-    Object.keys(appServer.cache['Tables']).forEach((tableName) => {
-        table_row_counts[tableName] = appServer.cache['Tables'][tableName].length;
+    Object.keys(appServer.Cache['Tables']).forEach((tableName) => {
+        table_row_counts[tableName] = appServer.Cache['Tables'][tableName].length;
     });
 
     return {
-        release: appServer.mameRelease,
+        release: appServer.MameRelease,
         table_row_counts,
     };
 }
@@ -60,7 +96,7 @@ const facetPropertyNames = ['manufacturer', 'year'];
 
 export const GetMachines = async (context: Tools.Context): Promise<any> => {
 
-    const appServer: MameApplicationServer = GetMameApplicationServer(context.server);
+    const appServer = GetMameApplicationServer(context.server);
 
     const offset: number = context.request.queryParameters['offset'].slice(-1)[0];
     const limit: number = context.request.queryParameters['limit'].slice(-1)[0];
@@ -70,10 +106,10 @@ export const GetMachines = async (context: Tools.Context): Promise<any> => {
 
     // Sort ALL machines (cached)
     const sortCacheKey = `machines-${sort}-${order}`;
-    let machines: any[] = appServer.cache[sortCacheKey];
+    let machines: any[] = appServer.Cache.MachineSortLists[sortCacheKey];
     if (!machines) {
 
-        machines = appServer.cache.Tables['machine'];
+        machines = appServer.Cache.Tables['machine'];
         machines = [...machines];
     
         machines.sort((a: any, b: any) => {
@@ -85,7 +121,7 @@ export const GetMachines = async (context: Tools.Context): Promise<any> => {
             return 0;
         });
 
-        appServer.cache[sortCacheKey] = machines;
+        appServer.Cache.MachineSortLists[sortCacheKey] = machines;
     }
 
     // Filter
@@ -150,70 +186,20 @@ export const GetMachines = async (context: Tools.Context): Promise<any> => {
     };
 }
 
-const machineTableNames: string[] = [
-    'mame',
-    'machine',
-    'rom',
-    'adjuster',
-    'biosset',
-    'chip',
-    'configuration',
-    'control',
-    'device',
-    'device_ref',
-    'dipswitch',
-    'disk',
-    'display',
-    'driver',
-    'feature',
-    'input',
-    'port',
-    'ramoption',
-    'sample',
-    'slot',
-    'softwarelist',
-    'sound',
-];
 
-export const BuildCache = async (): Promise<any> => {
-
-    const cache: any = {};
-
-    const sqlClient = new Tools.Data.SqlClient('SPLCAL-MAIN', 'MameMachines');
-    await sqlClient.Open();
-    try {
-
-        for await (const tableName of machineTableNames) {
-   
-            let commandText: string = `SELECT * FROM ${tableName}`;
-
-            if (tableName === 'control')
-                commandText = `SELECT input.machine_Id, control.* FROM [input] INNER JOIN control ON input.input_Id = control.input_Id`;
-
-            cache[tableName] = await sqlClient.Request(commandText);
-
-        }
-
-
-    } finally {
-        await sqlClient.Close();
-    }
-
-    return cache;
-}
 
 export const GetMachine = async (context: Tools.Context): Promise<any> => {
 
-    const appServer: MameApplicationServer = GetMameApplicationServer(context.server);
+    const appServer = GetMameApplicationServer(context.server);
 
     const machineName: string = context.request.pathParameters['name'];
 
-    let dataSet: any = appServer.cache.Machines[machineName];
+    let dataSet: any = appServer.Cache.Machines[machineName];
 
     if (!dataSet) {
         dataSet = {};
 
-        const tables = appServer.cache.Tables;
+        const tables = appServer.Cache.Tables;
 
         const machineRows = tables['machine'].filter((item: any) => item.name === machineName);
 
@@ -233,7 +219,7 @@ export const GetMachine = async (context: Tools.Context): Promise<any> => {
                 dataSet[tableName] = rows;
         }
 
-        appServer.cache.Machines[machineName] = dataSet;
+        appServer.Cache.Machines[machineName] = dataSet;
     }
 
     return dataSet;

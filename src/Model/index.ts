@@ -28,13 +28,26 @@ export interface Route {
 	logic: any;
 }
 
-export type ApplicationStartFunctionType = (server: Tools.Server) => Promise<void>;
+export interface ApplicationServer {
+	Cache: any;
+	Key: string;
+}
+
+export interface ApplicationServerConstructable {
+    new(key: string, cache: any): ApplicationServer;
+}
+
+export interface ApplicationServerConfig {
+	key: string;
+	cacheBuilder: () => Promise<any>;
+	classDefinition: ApplicationServerConstructable;
+}
 
 export interface ServerConfig {
 	name: string;
 	routes: Route[];
 	schemaFilename: string;
-	applicationStartFunctions: ApplicationStartFunctionType[],
+	applicationServers: ApplicationServerConfig[];
 }
 
 export interface ApiErrorConfig {
