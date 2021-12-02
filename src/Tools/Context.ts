@@ -359,19 +359,24 @@ export class Context {
 
 	public HandleError = async (e: Error, title: string) => {
 
-		Tools.LogError(this, title, e);
-
 		this.response.contentType = 'application/json';
 
 		let innerError: any = {};
+
+		let showError = true;
 
 		if (e.name === 'ApiError') {
 			const error: Tools.ApiError = <Tools.ApiError>e;
 			innerError = error.error || {};
 			this.response.statusCode = error.status;
+			if (error.status === 404)
+				showError = false;
 		} else {
 			this.response.statusCode = 500;
 		}
+
+		if (showError)
+			Tools.LogError(this, title, e);
 
 		//	Copy response data for error (validation)?
 

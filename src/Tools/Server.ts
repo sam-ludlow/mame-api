@@ -45,6 +45,41 @@ export class Server {
 
 	public Begin = async () => {
 
+		console.log(`Server Starting...: ${this.name} (${this.port})`);
+
+		/**
+		 * Application servers persistent caches
+		 */
+		const cacheFilename = './cache.json';
+		if (Tools.IO.FileExists(cacheFilename)) {
+
+			console.log(`Loading persistent application cache from file: ${cacheFilename}`);
+			this.cache = JSON.parse(await Tools.IO.FileRead(cacheFilename));
+
+		} else {
+
+			for await (const config of this.applicationServerConfigs) {
+
+				console.log(`Application server initializing persistent cache: ${config.key}`);
+
+				this.cache[config.key] = await config.cacheBuilder();
+			}
+	
+			console.log(`Writing persistent application cache to file: ${cacheFilename}`);
+			await Tools.IO.FileWrite(cacheFilename, JSON.stringify(this.cache));
+		}
+
+		/**
+		 * Make Application servers instances
+		 */
+		this.applicationServerConfigs.forEach((config) => {
+
+			this.applicationServers[config.key] =
+				new config.classDefinition(config.key, this.cache[config.key]);
+
+			console.log(`Application server instance created: ${config.key}`);
+		});
+
 		/**
 		 * Load Schema
 		 */
@@ -81,72 +116,50 @@ export class Server {
 
 			const parts: string[] = route.logic.split('.');
 
-			if (parts.length !== 3)
-				throw new Error(`Bad logic function: ${route.logic}`);
-
-			let module: any;
-
-			const logic: any = Logic;
-			Object.keys(logic).forEach((moduleName) => {
-				if (moduleName === parts[1])
-					module = logic[moduleName];
-			});
-
-			if (!module)
-				throw new Error(`did not find logic module:  ${route.logic}`);
-		
 			let callFunction: any;
 
-			Object.keys(module).forEach((functionName) => {
-				if (functionName === parts[2])
-					callFunction = module[functionName];
-			});
+			switch (parts.length) {
+
+				case 2:	// Instance function: KEY.function
+					const instance = this.applicationServers[parts[0]];
+					if (!instance)
+						throw new Error(`did not find application Server instance:  ${route.logic}`);
+
+					Object.keys(instance).forEach((functionName) => {
+						if (functionName === parts[1])
+							callFunction = instance[functionName];
+					});
+					break;
+
+				case 3:	// Static function: Logic.module.function
+					let module: any;
+
+					const logic: any = Logic;
+					Object.keys(logic).forEach((moduleName) => {
+						if (moduleName === parts[1])
+							module = logic[moduleName];
+					});
+		
+					if (!module)
+						throw new Error(`did not find logic module:  ${route.logic}`);
+		
+					Object.keys(module).forEach((functionName) => {
+						if (functionName === parts[2])
+							callFunction = module[functionName];
+					});
+					break;
+
+				default:
+					throw new Error(`Bad logic function: ${route.logic}`);
+			}
 
 			if (!callFunction)
 				throw new Error(`did not find logic function:  ${route.logic}`);
 
+			console.log(`Route: anonymous:${route.anonymous} ${route.method} ${route.path} ${route.logic}`);
+
 			route.logic = callFunction;
 		});
-
-		/**
-		 * Application Startup
-		 */
-		console.log('Server Startup...');
-
-
-		// Load or create cache data
-		const cacheFilename = './cache.json';
-		if (Tools.IO.FileExists(cacheFilename)) {
-
-			console.log(`Reading server data cache from file (NOT RUNNING application Start Functions): ${cacheFilename}`);
-			this.cache = JSON.parse(await Tools.IO.FileRead(cacheFilename));
-
-		} else {
-
-			for await (const config of this.applicationServerConfigs) {
-
-				console.log(`application server initializing Cache: ${config.key}`);
-
-				this.cache[config.key] = await config.cacheBuilder();
-
-				console.log(`application server initialized Cache: ${config.key}`);
-			}
-	
-			console.log(`Writing server data cache to file: ${cacheFilename}`);
-			await Tools.IO.FileWrite(cacheFilename, JSON.stringify(this.cache));
-		}
-
-
-		// Make Application servers
-		this.applicationServerConfigs.forEach((config) => {
-
-			this.applicationServers[config.key] =
-				new config.classDefinition(config.key, this.cache[config.key]);
-
-			console.log(`application server created: ${config.key}`);
-		});
-
-		console.log('... finished Server Startup.');
 
 		/**
 		 * Listen

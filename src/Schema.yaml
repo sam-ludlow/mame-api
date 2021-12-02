@@ -51,7 +51,7 @@ paths:
       tags:
         - mame
       summary: Get information about MAME (release version)
-      operationId: Logic.MameMachines.GetAbout
+      operationId: MAME.GetAbout
       security: []
       responses:
         200:
@@ -66,7 +66,7 @@ paths:
       tags:
         - mame machines
       summary: Get machines list
-      operationId: Logic.MameMachines.GetMachines
+      operationId: MAME.GetMachines
       security: []
       parameters:
         - $ref: '#/components/parameters/offset'
@@ -114,7 +114,7 @@ paths:
       tags:
         - mame machines
       summary: Get single machine
-      operationId: Logic.MameMachines.GetMachine
+      operationId: MAME.GetMachine
       security: []
       parameters:
         - name: name
