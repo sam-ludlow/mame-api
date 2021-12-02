@@ -14,7 +14,12 @@ const spludlowPublicServerConfig: Model.ServerConfig = {
 		{
 			key: 'TOSEC',
 			cacheBuilder: Logic.TOSEC.BuildCache,
-			classDefinition: Logic.TOSEC.MameApplicationServer,
+			classDefinition: Logic.TOSEC.TOSECApplicationServer,
+		},
+		{
+			key: 'FBNEO',
+			cacheBuilder: Logic.FBNeo.BuildCache,
+			classDefinition: Logic.FBNeo.FBNeoApplicationServer,
 		},
 	],
 	routes: [

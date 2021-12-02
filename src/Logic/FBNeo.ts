@@ -7,7 +7,7 @@ export const BuildCache = async (): Promise<any> => {
 
     const cache: any = {};
 
-    const sqlClient = new Tools.Data.SqlClient('SPLCAL-MAIN', 'TOSEC');
+    const sqlClient = new Tools.Data.SqlClient('SPLCAL-MAIN', 'FBNeoMachine');
     await sqlClient.Open();
     try {
         const tableNames = await sqlClient.TableList();
@@ -24,7 +24,7 @@ export const BuildCache = async (): Promise<any> => {
     };
 }
 
-export class TOSECApplicationServer implements Model.ApplicationServer {
+export class FBNeoApplicationServer implements Model.ApplicationServer {
     
     public Cache: any;
     public Key: string;

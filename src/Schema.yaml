@@ -17,6 +17,8 @@ tags:
   description: MAME Machines
 - name: tosec
   description: TOSEC
+- name: fbneo
+  description: FBNeo
 
 paths:
   /:
@@ -132,28 +134,24 @@ paths:
             application/json:
               schema:
                 type: object
-        404:
-          description: Machine name not found.
 
-  /tosec/datafiles:
+  /fbneo/datafiles:
     get:
       tags:
-        - tosec
-      summary: Get TOSEC data file list
-      operationId: TOSEC.GetDataFiles
+        - fbneo
+      summary: Get FB Neo data file list
+      operationId: FBNEO.GetDataFiles
       security: []
       parameters:
         - $ref: '#/components/parameters/offset'
         - $ref: '#/components/parameters/limit'
       responses:
         200:
-          description: TOSEC data file list results
+          description: FB Neo data file list results
           content:
             application/json:
               schema:
                 type: object
-        404:
-          description: Machine name not found.
 
 components:
   parameters:
