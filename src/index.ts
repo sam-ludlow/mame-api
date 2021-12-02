@@ -7,9 +7,14 @@ const spludlowPublicServerConfig: Model.ServerConfig = {
 	schemaFilename: './src/Schema.yaml',
 	applicationServers: [
 		{
-			key: 'MAME',
+			key: 'MAME_MACHINE',
 			cacheBuilder: Logic.MameMachines.BuildCache,
 			classDefinition: Logic.MameMachines.MameApplicationServer,
+		},
+		{
+			key: 'MAME_SOFTWARE',
+			cacheBuilder: Logic.MameSoftwareLists.BuildCache,
+			classDefinition: Logic.MameSoftwareLists.MameSoftwareListsApplicationServer,
 		},
 		{
 			key: 'TOSEC',

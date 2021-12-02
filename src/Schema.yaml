@@ -15,6 +15,8 @@ tags:
   description: MAME
 - name: mame machines
   description: MAME Machines
+- name: mame software
+  description: MAME Software Lists
 - name: tosec
   description: TOSEC
 - name: fbneo
@@ -55,7 +57,7 @@ paths:
       tags:
         - mame
       summary: Get information about MAME (release version)
-      operationId: MAME.GetAbout
+      operationId: MAME_MACHINE.GetAbout
       security: []
       responses:
         200:
@@ -70,7 +72,7 @@ paths:
       tags:
         - mame machines
       summary: Get machines list
-      operationId: MAME.GetMachines
+      operationId: MAME_MACHINE.GetMachines
       security: []
       parameters:
         - $ref: '#/components/parameters/offset'
@@ -118,7 +120,7 @@ paths:
       tags:
         - mame machines
       summary: Get single machine
-      operationId: MAME.GetMachine
+      operationId: MAME_MACHINE.GetMachine
       security: []
       parameters:
         - name: name
@@ -130,6 +132,26 @@ paths:
       responses:
         200:
           description: Machine results
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: Machine not found
+
+  /mame/software-lists:
+    get:
+      tags:
+        - mame software
+      summary: Get MAME Software lists list
+      operationId: MAME_SOFTWARE.GetSoftwareLists
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        200:
+          description: MAME Software lists list results
           content:
             application/json:
               schema:

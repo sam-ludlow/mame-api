@@ -216,4 +216,4 @@ export class MameApplicationServer implements Model.ApplicationServer {
 
 }
 
-export const GetMameApplicationServer = (server: Tools.Server): MameApplicationServer => server.applicationServers['MAME'];
+export const GetMameApplicationServer = (server: Tools.Server): MameApplicationServer => server.applicationServers['MAME_MACHINE'];
