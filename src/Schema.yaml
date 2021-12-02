@@ -135,6 +135,24 @@ paths:
               schema:
                 type: object
 
+  /tosec/datafiles:
+    get:
+      tags:
+        - tosec
+      summary: Get TOSEC data file list
+      operationId: TOSEC.GetDataFiles
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        200:
+          description: TOSEC data file list results
+          content:
+            application/json:
+              schema:
+                type: object
+
   /fbneo/datafiles:
     get:
       tags:
