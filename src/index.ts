@@ -11,6 +11,11 @@ const spludlowPublicServerConfig: Model.ServerConfig = {
 			cacheBuilder: Logic.MameMachines.BuildCache,
 			classDefinition: Logic.MameMachines.MameApplicationServer,
 		},
+		{
+			key: 'TOSEC',
+			cacheBuilder: Logic.TOSEC.BuildCache,
+			classDefinition: Logic.TOSEC.MameApplicationServer,
+		},
 	],
 	routes: [
 /*		{

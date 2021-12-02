@@ -15,6 +15,8 @@ tags:
   description: MAME
 - name: mame machines
   description: MAME Machines
+- name: tosec
+  description: TOSEC
 
 paths:
   /:
@@ -126,6 +128,26 @@ paths:
       responses:
         200:
           description: Machine results
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: Machine name not found.
+
+  /tosec/datafiles:
+    get:
+      tags:
+        - tosec
+      summary: Get TOSEC data file list
+      operationId: TOSEC.GetDataFiles
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        200:
+          description: TOSEC data file list results
           content:
             application/json:
               schema:

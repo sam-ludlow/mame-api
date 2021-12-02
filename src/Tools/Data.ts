@@ -57,6 +57,22 @@ export class SqlClient {
         });
     }
 
+    public TableList = async () => {
+        const response: any[] = await this.Request('SELECT sys.tables.name AS TableName, sys.schemas.name as SchemaName FROM sys.tables INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id');
+
+        const names: string[] = [];
+        response.forEach((row: any) => {
+            let name: string = row.TableName;
+            if (name !== 'sysdiagrams') {
+                if (row.SchemaName !== 'dbo')
+                    name = row.SchemaName + '.' + name;
+                names.push(name);
+            }
+        });
+
+        return names;
+    }
+
     private mapRows = (rows: any[]): any[] => {
         const newRows: any[] = [];
         rows.forEach((row) => {

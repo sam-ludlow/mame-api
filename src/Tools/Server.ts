@@ -1,5 +1,6 @@
 import http from "http";
 import https from "https";
+import path from "path";
 
 import * as Model from '../Model';
 import * as Tools from '../Tools';
@@ -50,34 +51,37 @@ export class Server {
 		/**
 		 * Application servers persistent caches
 		 */
-		const cacheFilename = './cache.json';
-		if (Tools.IO.FileExists(cacheFilename)) {
+		const cacheDirectoryName = './cache';
+		for await (const config of this.applicationServerConfigs) {
 
-			console.log(`Loading persistent application cache from file: ${cacheFilename}`);
-			this.cache = JSON.parse(await Tools.IO.FileRead(cacheFilename));
+			const cacheFilename = path.join(cacheDirectoryName, `${config.key}.json`)
 
-		} else {
+			if (Tools.IO.FileExists(cacheFilename)) {
+				console.log(`Loading persistent application cache from file: ${cacheFilename}`);
 
-			for await (const config of this.applicationServerConfigs) {
+				this.cache[config.key] = JSON.parse(await Tools.IO.FileRead(cacheFilename));
+			} else {
+				console.log(`Building persistent application cache: ${cacheFilename}`);
 
-				console.log(`Application server initializing persistent cache: ${config.key}`);
+				this.cache[config.key] = config.cacheBuilder ? await config.cacheBuilder() : {};
 
-				this.cache[config.key] = await config.cacheBuilder();
+				console.log(`Writing persistent application cache to file: ${cacheFilename}`);
+
+				await Tools.IO.FileWrite(cacheFilename, JSON.stringify(this.cache[config.key]));
 			}
-	
-			console.log(`Writing persistent application cache to file: ${cacheFilename}`);
-			await Tools.IO.FileWrite(cacheFilename, JSON.stringify(this.cache));
 		}
 
 		/**
 		 * Make Application servers instances
 		 */
 		this.applicationServerConfigs.forEach((config) => {
+			
+			if (config.classDefinition) {
+				this.applicationServers[config.key] =
+					new config.classDefinition(config.key, this.cache[config.key]);
 
-			this.applicationServers[config.key] =
-				new config.classDefinition(config.key, this.cache[config.key]);
-
-			console.log(`Application server instance created: ${config.key}`);
+				console.log(`Application server instance created: ${config.key}`);
+			}
 		});
 
 		/**
