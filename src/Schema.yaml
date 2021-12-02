@@ -174,6 +174,70 @@ paths:
             application/json:
               schema:
                 type: object
+  /tosec/games:
+    get:
+      tags:
+        - tosec
+      summary: Get TOSEC data file list
+      operationId: TOSEC.GetGames
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
+        - name: filter_datafile
+          in: query
+          description: Filter results on datafile name.
+          required: false
+          schema: {
+            type: array,
+            items: {
+              type: string
+            }
+          }
+      responses:
+        200:
+          description: TOSEC data file list results
+          content:
+            application/json:
+              schema:
+                type: object
+  /tosec/roms:
+    get:
+      tags:
+        - tosec
+      summary: Get TOSEC roms list
+      operationId: TOSEC.GetRoms
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
+        - name: filter_datafile
+          in: query
+          description: Filter results on datafile name.
+          required: false
+          schema: {
+            type: array,
+            items: {
+              type: string
+            }
+          }
+        - name: filter_game
+          in: query
+          description: Filter results on game name.
+          required: false
+          schema: {
+            type: array,
+            items: {
+              type: string
+            }
+          }
+      responses:
+        200:
+          description: TOSEC roms results
+          content:
+            application/json:
+              schema:
+                type: object
 
   /fbneo/datafiles:
     get:
