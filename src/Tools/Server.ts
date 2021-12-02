@@ -75,7 +75,7 @@ export class Server {
 		 * Make Application servers instances
 		 */
 		this.applicationServerConfigs.forEach((config) => {
-			
+
 			if (config.classDefinition) {
 				this.applicationServers[config.key] =
 					new config.classDefinition(config.key, this.cache[config.key]);
@@ -160,7 +160,7 @@ export class Server {
 			if (!callFunction)
 				throw new Error(`did not find logic function:  ${route.logic}`);
 
-			console.log(`Route: anonymous:${route.anonymous} ${route.method} ${route.path} ${route.logic}`);
+			console.log(`Route: ${route.method} ${route.path} ${route.logic} ${route.anonymous ? '(anonymous)' : ''}`);
 
 			route.logic = callFunction;
 		});
