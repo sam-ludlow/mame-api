@@ -54,7 +54,7 @@ export class Server {
 		const cacheDirectoryName = './cache';
 		for await (const config of this.applicationServerConfigs) {
 
-			const cacheFilename = path.join(cacheDirectoryName, `${config.key}.json`)
+			const cacheFilename = path.join(cacheDirectoryName, `${config.key}.json`);
 
 			if (Tools.IO.FileExists(cacheFilename)) {
 				console.log(`Loading persistent application cache from file: ${cacheFilename}`);

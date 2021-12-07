@@ -1,8 +1,6 @@
 import * as Tools from '../Tools';
 import * as Model from '../Model';
 
-
-
 export const BuildCache = async (): Promise<any> => {
 
     const cache: any = {};

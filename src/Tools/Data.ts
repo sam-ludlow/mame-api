@@ -1,5 +1,8 @@
 
+import path from "path";
 import * as Tedious from 'tedious';
+
+import * as Tools from '../Tools';
 
 export class SqlClient {
 
@@ -83,5 +86,26 @@ export class SqlClient {
             newRows.push(newRow);
         });
         return newRows;
+    }
+}
+
+export const JsonToDirectory = async (directoryName: string, server: string, database: string, tableNames: string[] | undefined) => {
+    const sqlClient = new Tools.Data.SqlClient(server, database);
+    await sqlClient.Open();
+    try {
+        for await (const tableName of tableNames || (await sqlClient.TableList())) {
+            const table: any[] = await sqlClient.Request(`SELECT * FROM [${tableName}]`);
+
+            table.forEach((row: any) => {
+                row['table_id'] = tableName;
+            });
+
+            const json = JSON.stringify(table, null, '\t');
+
+            const filename = path.join(directoryName, `${tableName}.json`);
+            await Tools.IO.FileWrite(filename, json);
+        }
+    } finally {
+        await sqlClient.Close();
     }
 }

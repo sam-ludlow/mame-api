@@ -52,6 +52,10 @@ const runProfiles = {
 };
 
 const Start = async () => {
+
+	//await Tools.Data.JsonToDirectory('E:\\SOLR\\SOURCE\\TOSEC', 'SPLCAL-MAIN', 'TOSEC', undefined);
+	//return;
+
 	const config: Tools.Config = new Tools.Config(runProfiles);
 
 	const spludlowPublicServer: Tools.Server = new Tools.Server(config, spludlowPublicServerConfig);
