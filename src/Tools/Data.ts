@@ -22,6 +22,7 @@ export class SqlClient {
             options: {
                 database,
                 rowCollectionOnRequestCompletion: true,
+                trustServerCertificate: true,
             },
         });
     }
