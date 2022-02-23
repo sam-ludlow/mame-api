@@ -3,6 +3,8 @@ import * as Model from '../Model';
 
 export const BuildCache = async (): Promise<any> => {
 
+    return {};
+
     const cache: any = {};
 
     const sqlClient = new Tools.Data.SqlClient('SPLCAL-MAIN', 'TOSEC');
@@ -48,7 +50,7 @@ export class TOSECApplicationServer implements Model.ApplicationServer {
         this.Cache = cache;
 
         //  Non-persistant caches
-        this.Cache['Games'] = {};
+   /*     this.Cache['Games'] = {};
 
         const datafiles: any[] = cache.Tables.datafile;
         datafiles.forEach((datafile) => {
@@ -58,7 +60,7 @@ export class TOSECApplicationServer implements Model.ApplicationServer {
         const roms: any[] = cache.Tables.rom;
         roms.forEach((rom) => {
             this.GameIdNameLookup[rom.rom_Id] = rom.name;
-        });
+        });*/
     }
 
     private Filter = (items: any[], properptyNames: any, queryParameters: any): any => {
@@ -83,7 +85,72 @@ export class TOSECApplicationServer implements Model.ApplicationServer {
         };
     }
 
+    public mapSolrFacets = (facets: any): any => {
+
+        //return facets;
+
+        const result: any = {};
+
+        Object.keys(facets).forEach((key: string) => {
+
+            const facet = facets[key];
+            if (facet.buckets !== undefined) {
+
+                result[key] = facet.buckets;
+
+            //    facet.buckets.forEach((bucket: any) => {
+             //       result[key][bucket.val] = bucket.count;
+              //  });
+            }
+
+        });
+
+        return result;
+    }
+
     public GetDataFiles = async (context: Tools.Context): Promise<any> => {
+
+        const offset: number = context.request.queryParameters['offset'].slice(-1)[0];
+        const limit: number = context.request.queryParameters['limit'].slice(-1)[0];
+
+        let solrResponse = await Tools.Data.SolrRead(context, {
+            query: '*:*',
+            filter: [ 'table_id:datafile' ],
+            offset,
+            limit,
+            fields: ['name', 'description', 'category', 'version', 'author' ],
+            //  sort: 'category ASC, name ASC',
+            facet: {
+                category: {
+                    type: 'terms',
+                    field: 'category',
+                    sort: 'count desc',
+                    limit: 0x7FFFFFFF,
+                },
+                author: {
+                    type: 'terms',
+                    field: 'author',
+                    sort: 'index asc',
+                    limit: 0x7FFFFFFF,
+                },
+            },
+        });
+
+
+        return {
+            count: solrResponse.response.numFound,
+            facets: this.mapSolrFacets(solrResponse.facets),
+            results: solrResponse.response.docs.map((doc: any) => {
+                const result: any = {};
+                Object.keys(doc).forEach((key: string) => {
+                    result[key] = doc[key][0];
+                });
+                return result;
+            }),
+        };
+    }
+
+    public GetDataFilesOLD = async (context: Tools.Context): Promise<any> => {
 
         let datafiles = this.Cache.Tables['datafile'];
 

@@ -2,6 +2,9 @@
 import path from "path";
 import * as Tedious from 'tedious';
 
+import { AxiosError } from 'axios';
+
+import * as Model from '../Model';
 import * as Tools from '../Tools';
 
 export class SqlClient {
@@ -97,7 +100,15 @@ export const JsonToDirectory = async (directoryName: string, server: string, dat
             const table: any[] = await sqlClient.Request(`SELECT * FROM [${tableName}]`);
 
             table.forEach((row: any) => {
-                row['table_id'] = tableName;
+                row['_table_name'] = tableName;
+
+                //  Fix _Ids _ids
+                Object.keys(row).forEach((columnName: string) => {
+                    if (columnName.endsWith('_Id')) {
+                        row[`_${columnName.slice(0, -3)}_id`] = row[columnName];
+                        delete row[columnName];
+                    }
+                });
             });
 
             const json = JSON.stringify(table, null, '\t');
@@ -108,4 +119,83 @@ export const JsonToDirectory = async (directoryName: string, server: string, dat
     } finally {
         await sqlClient.Close();
     }
+}
+
+
+export const SolrRead = async (context: Tools.Context, requestQuery: any): Promise<any> => {
+    /* const pairs: string[][] = [];
+
+    if (request.q !== '')
+        pairs.push(['q', request.q]);
+
+    request.fq.forEach(value => {
+        pairs.push(['fq', value]);
+    });
+
+    request.fl.forEach(value => {
+        pairs.push(['fl', value]);
+    });
+
+    if (request.sort !== '')
+        pairs.push(['sort', request.sort]);
+
+    if (request.start !== -1)
+        pairs.push(['start', request.start.toString()]);
+    if (request.rows !== -1)
+        pairs.push(['rows', request.rows.toString()]);
+
+    if (request.facet) {
+        pairs.push(['facet', 'on']);
+        if (request.facet.mincount)
+            pairs.push(['facet.mincount', request.facet.mincount.toString()]);
+        if (request.facet.field)
+            pairs.push(['facet.field', request.facet.field]);
+        if (request.facet.sort)
+            pairs.push(['facet.sort', request.facet.sort]);
+	}
+
+    let data = '';
+    pairs.forEach((pair) => {
+        if (data.length > 0) data += '&';
+        data += encodeURIComponent(pair[0]);
+        data += '=';
+        data += encodeURIComponent(pair[1]);
+    }); */
+
+    //  https://solr.apache.org/guide/8_11/json-request-api.html
+
+    try {
+        const httpResponse: Model.HttpResponse = await Tools.Http.Request({
+            method: 'POST',
+            url: 'http://localhost:8983/solr/tosec/select?wt=json&json.nl=flat',
+            data: requestQuery,
+            headers: {},
+        });
+
+        return httpResponse.data;
+    }
+    catch (catchError: any) {
+        if (catchError.isAxiosError === true) {
+            const e: AxiosError = catchError;
+
+            if (e.response?.status === 400) {
+                let responseData: string | undefined;
+                if (e.response.data) {
+                    if (e.response.data.error && e.response.data.error.msg)
+                        responseData = e.response.data.error.msg;
+                    else
+                        responseData = JSON.stringify(e.response.data);
+				}
+                throw new Tools.ApiError({
+                    status: 500,
+                    message: `Solr Query Error # ${responseData} # ${requestQuery}`,
+                    error: e,
+                });
+			}
+            throw e;
+        } else {
+            throw catchError;
+        }
+
+	}
 }

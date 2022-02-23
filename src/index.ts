@@ -53,7 +53,10 @@ const runProfiles = {
 
 const Start = async () => {
 
-	//await Tools.Data.JsonToDirectory('E:\\SOLR\\SOURCE\\TOSEC', 'SPLCAL-MAIN', 'TOSEC', undefined);
+	//await Tools.Data.JsonToDirectory('E:\\SOLR\\SOURCE\\TOSEC', 'SPLCAL-MAIN', 'TOSEC', undefined);	//	, ['datafile']);	//
+	//await Tools.Data.JsonToDirectory('E:\\SOLR\\SOURCE\\FBNeo', 'SPLCAL-MAIN', 'FBNeoMachine', undefined);	
+	//await Tools.Data.JsonToDirectory('E:\\SOLR\\SOURCE\\MAMEMachine', 'SPLCAL-MAIN', 'MameMachines', undefined);
+	//await Tools.Data.JsonToDirectory('E:\\SOLR\\SOURCE\\MAMESoftware', 'SPLCAL-MAIN', 'MameSoftware', undefined);
 	//return;
 
 	const config: Tools.Config = new Tools.Config(runProfiles);
