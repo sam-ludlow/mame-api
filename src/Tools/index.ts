@@ -3,6 +3,7 @@ export * from './Config';
 export * from './Context';
 export * as Data from './Data';
 export * from './Errors';
+export * as Http from './Http';
 export * as IO from './IO';
 export * from './Log';
 export * as Response from './Response';

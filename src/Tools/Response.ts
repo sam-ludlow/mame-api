@@ -106,8 +106,14 @@ export const RenderHtmlTables = (dataTables: Model.DataTable[]): string => {
 
 export const Write = async (context: Tools.Context) => {
 
-	let body: string = (typeof context.response.body === 'string') ?
+	let body: any;
+
+	if (context.response.contentType === "application/octet-stream") {
+		body = context.response.body;
+	} else {
+		body = (typeof context.response.body === 'string') ?
 		context.response.body : JSON.stringify(context.response.body);
+	}
 
 	context.res.writeHead(context.response.statusCode, { "Content-Type": context.response.contentType });
 

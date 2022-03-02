@@ -256,6 +256,30 @@ paths:
             application/json:
               schema:
                 type: object
+  /fbneo/zips/json/{version}:
+    get:
+      tags:
+        - fbneo
+      summary: Get FBNeo ZIP of json dats
+      operationId: FBNEO.GetZipJson
+      security: []
+      parameters:
+        - name: version
+          in: path
+          description: "The FBNeo version"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Zip file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: Version not found
 
 components:
   parameters:

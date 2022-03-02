@@ -54,4 +54,24 @@ export class FBNeoApplicationServer implements Model.ApplicationServer {
     }
 
 
+    public GetZipJson = async (context: Tools.Context): Promise<any> => {
+
+        const version: string = context.request.pathParameters['version'];
+
+       const response: Model.HttpResponse = await Tools.Http.Request({
+            method: 'get',
+            url: `https://mame.spludlow.co.uk/WebData/FBNeo/JSON/${version}`,
+            data: undefined,
+            headers: undefined,
+        });
+
+        if (response.status !== 200)
+            throw new Error('Bad status');
+
+        context.response.contentType = "application/octet-stream";
+
+        return response.data;
+    }
+
+
 }
