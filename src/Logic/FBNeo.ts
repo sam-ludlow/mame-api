@@ -95,6 +95,8 @@ export class FBNeoApplicationServer implements Model.ApplicationServer {
             }
         });
 
+        results.reverse();
+
         return {
             count: results.length,
             results,
