@@ -61,6 +61,7 @@ export interface HttpRequestConfig {
 	url: string,
 	data: any,
 	headers: any,
+	binary: boolean,
 }
 
 export interface HttpResponse {

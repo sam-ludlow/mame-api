@@ -256,6 +256,20 @@ paths:
             application/json:
               schema:
                 type: object
+  /fbneo/releases:
+    get:
+      tags:
+        - fbneo
+      summary: Get FB Neo releases builds
+      operationId: FBNEO.GetReleases
+      security: []
+      responses:
+        200:
+          description: FB Neo releases
+          content:
+            application/json:
+              schema:
+                type: object                
   /fbneo/zips/json/{version}:
     get:
       tags:
