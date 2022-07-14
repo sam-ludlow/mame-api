@@ -1,3 +1,5 @@
+import fs from "fs";
+
 import * as Model from './Model';
 import * as Tools from './Tools';
 import * as Logic from './Logic';
@@ -52,6 +54,14 @@ const runProfiles = {
 };
 
 const Start = async () => {
+
+	process.stdin.on('data', (chunk: Buffer) => {
+		const command: string = chunk.toString().trim();
+		console.log(`COMMAND: ${command}`);
+
+		if (command === 'stop')
+			process.exit(0);
+	});
 
 	//await Tools.Data.JsonToDirectory('E:\\SOLR\\SOURCE\\TOSEC', 'SPLCAL-MAIN', 'TOSEC', undefined);
 	//return;
