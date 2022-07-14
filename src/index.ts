@@ -46,7 +46,7 @@ const runProfiles = {
 	},
 
 	public: {
-		port: 443,
+		port: 777,
 		key: './certs/api.spludlow.net/privkey.pem',
 		cert: './certs/api.spludlow.net/cert.pem',
 
