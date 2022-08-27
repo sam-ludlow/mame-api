@@ -21,6 +21,8 @@ tags:
   description: TOSEC
 - name: fbneo
   description: FBNeo
+- name: data
+  description: Data
 
 paths:
   /:
@@ -294,6 +296,31 @@ paths:
                 format: binary
         404:
           description: Version not found
+
+  /data/machine_filter/{system}:
+    get:
+      tags:
+        - data
+      summary: Get Machine Filter JSON in ZIP
+      operationId: Logic.Data.GetZipJson
+      security: []
+      parameters:
+        - name: system
+          in: path
+          description: "The Machine Filter system"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Zip file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: System not found
 
 components:
   parameters:
