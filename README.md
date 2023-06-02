@@ -25,6 +25,8 @@ Very active project, new stuff continuously added, updated monthly.
 ### HBMAME 
 Based on MAME with various silly ROM hacks and other antics.
 
+NOTE: Hardly implemented only providing data on the /data/machine_filter end point.
+
 https://hbmame.1emulation.com/
 
 https://github.com/Robbbert/hbmame
