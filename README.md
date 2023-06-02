@@ -10,6 +10,29 @@ At any time it may just break or the data becomes stale.
 
 If you are consuming it please get in touch to know what's going on.
 
+## Usage
+
+### Service Location
+
+https://api.spludlow.net:777/
+
+The root GET serves up the swagger YAML. If you can't see it, in a browser, then it's paggered.
+
+### Documentation
+
+You can swagger it here.
+
+https://mame.spludlow.co.uk/swagger-ui/
+
+The swagger-ui is fully working, you can run tests against end points and grab the curl or whatever.
+
+NOTE: No response schemas are present in the swagger, just look at the body, not the mantelpiece.
+
+### Authentication & Security
+All endpoints are currently anonymous, they do not require authentication.
+
+CORS Access control is as permissive as possible. __Access-Control-Allow-Origin: *__
+
 ## DataSets
 The following datasets are provided:
 
@@ -56,29 +79,6 @@ https://github.com/finalburnneo/FBNeo
 The MAME-API FBNeo endpoints are not currently being maintained, I did have it updating from the daily builds (https://github.com/finalburnneo/FBNeo/releases/tag/latest) but lost interest. If anyone is interested let me know.
 
 These boys seem to ride the nightly builds, looks like they gave up on stable releases (https://github.com/finalburnneo/FBNeo/releases) last one is from 2021.
-
-## Usage
-
-### Service Location
-
-https://api.spludlow.net:777/
-
-The root GET serves up the swagger YAML. If you can't see it, in a browser, then it's paggered.
-
-### Documentation
-
-You can swagger it here.
-
-https://mame.spludlow.co.uk/swagger-ui/
-
-The swagger-ui is fully working, you can run tests against end points and grab the curl or whatever.
-
-NOTE: No response schemas are present in the swagger, just look at the body, not the mantelpiece.
-
-### Authentication & Security
-All endpoints are currently anonymous, they do not require authentication.
-
-CORS Access control is as permissive as possible. __Access-Control-Allow-Origin: *__
 
 ## Concept
 After working with a Node.js API for 2 years commercially, with no prior JS experience, I kind of liked it and wanted to build something on my own terms.
