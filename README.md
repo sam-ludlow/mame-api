@@ -22,17 +22,6 @@ https://github.com/mamedev/mame
 
 Very active project, new stuff continuously added, updated monthly.
 
-### HBMAME 
-Based on MAME with various silly ROM hacks and other antics.
-
-NOTE: Hardly implemented only providing data on the /data/machine_filter end point.
-
-https://hbmame.1emulation.com/
-
-https://github.com/Robbbert/hbmame
-
-Updated monthly.
-
 ### TOSEC
 TOSEC is not an Emulator but a catalogue of old software, firmware, and some documentation.
 
@@ -45,6 +34,17 @@ It is a very useful resource, you can find many software collections (https://ar
 You can trust the collections based on TOSEC, well some software will be infected with target system viruses.
 
 Casually browse the TOSEC dataset here https://mame.spludlow.co.uk/Others/TOSEC/
+
+### HBMAME 
+Based on MAME with various silly ROM hacks and other antics.
+
+NOTE: Hardly implemented only providing data on the /data/machine_filter end point.
+
+https://hbmame.1emulation.com/
+
+https://github.com/Robbbert/hbmame
+
+Updated monthly.
 
 ### FBNeo
 Similar project to MAME but more focused on gaming performance, unlike MAME which is more focused on fidelity and history.
