@@ -73,6 +73,11 @@ The swagger-ui is fully working, you can run tests against end points and grab t
 
 NOTE: No response schemas are present in the swagger, just look at the body, not the mantelpiece.
 
+### Authentication & Security
+All endpoints are currently anonymous, they do not require authentication.
+
+CORS Access control is as permissive as possible. __Access-Control-Allow-Origin: *__
+
 ## Concept
 After working with a Node.js API for 2 years commercially, with no prior JS experience, I kind of liked it and wanted to build something on my own terms.
 
