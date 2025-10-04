@@ -2,13 +2,13 @@
 MAME-API is a REST API that provides various emulator and software datasets in JSON format.
 
 ## Important Information
-This API It is largely experimental at this stage.
+This project is in moth balls.
 
-Breaking changes may occur without notice. If you have built anything that consumes it the wheels might fall off one day.
+It has been replaced, see here:
 
-At any time it may just break or the data becomes stale.
+https://github.com/sam-ludlow/mame-ao-server
 
-If you are consuming it please get in touch to know what's going on.
+https://data.spludlow.co.uk/
 
 ## Usage
 
